@@ -115,9 +115,7 @@ See:
 
 See: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker
 
-## Basics
-
-### System commands
+## System commands
 
 - `docker version`
 - `docker info`
@@ -127,7 +125,7 @@ See: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-do
   - `--volumes`: Prune anonymous volumes
   - `--force`: Do not prompt for confirmation
 
-### Working with images
+## Working with images
 
 - `docker pull <image>` - download an image
 - `docker image ls` - list all images
@@ -136,9 +134,7 @@ See: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-do
 - `docker image rm <image>` - remove image
 - `docker image inspect <image>` - show image properties
 
-## Getting started with Docker
-
-### Run image
+## Start a container
 
 ```bash
 docker run ubuntu
@@ -188,7 +184,7 @@ Common parameters:
 > docker run ubuntu -it
 > ```
 
-### Working with containers
+## Working with containers
 
 - `docker container ls` - list containers
 - `docker ps`- list containers
@@ -219,7 +215,7 @@ or alternatively use short syntax without the "container" word:
 - `docker ps -a` - list all containers
 - `docker ps -a -q` - list IDs of all containers
 
-### Container logs
+## Container logs
 
 ```bash
 docker logs <container>
@@ -242,7 +238,7 @@ docker run --name postgres-16 -d -e POSTGRES_PASSWORD=postgres postgres:16
 docker logs -f postgres-16
 ```
 
-### Execute a command inside container
+## Execute a command inside container
 
 ```bash
 docker exec <container> <command>
@@ -269,7 +265,7 @@ docker exec -it postgres-16 bash
 docker exec -it -u postgres postgres-16 psql
 ```
 
-### Build image
+## Build an image
 
 - `docker build`
 - Dockerfile
@@ -325,7 +321,24 @@ docker build --platform linux/amd64 .
 docker build --platform linux/amd64,linux/arm64 .
 ```
 
-### Volumes
+## Port-forwarding
+
+Or port-publishing. Aka you expose a port from the container to the host system.
+
+```bash
+docker run -p [<network-addr>:]<host-port>:<container-port> <image>
+```
+
+```bash
+docker run -ti -p 8080:80 nginx
+docker run -ti -p 127.0.0.1:8080:80 nginx
+```
+
+> [!NOTE]
+>
+> Its recommended to specify the address, especially when deploying to production, since a port is attached to a network interface directly, this bypasses firewall rules (iptables, etc.) and will expose your app to public internet. A common use-case is to run app behind a reverse proxy (NGINX, Traefik, Caddy,...). By attaching port to local IP (`127.0.0.1`) or other non public CIDR, app will be accessible only through the proxy and not via public server IP.
+
+## Container volumes
 
 See: https://docs.docker.com/engine/storage/volumes/
 
@@ -422,7 +435,7 @@ Via config file (`/etc/docker/daemon.json`)
 }
 ```
 
-### Image tags
+## Image tags
 
 To differentiate between image versions etc., use image tags – the string after colon (`:v1.3.4`). Its common to use Git commit hash and/or version.
 
@@ -438,24 +451,9 @@ docker build -t ttl.sh/docker-training-build-example:1h
 docker tag ubuntu:24.04 ttl.sh/docker-training-base:48h
 ```
 
-### Port-forwarding
+### Immutable tags
 
-Or port-publishing. Aka you expose a port from the container to the host system.
-
-```bash
-docker run -p [<network-addr>:]<host-port>:<container-port> <image>
-```
-
-```bash
-docker run -ti -p 8080:80 nginx
-docker run -ti -p 127.0.0.1:8080:80 nginx
-```
-
-> [!NOTE]
->
-> Its recommended to specify the address, especially when deploying to production, since a port is attached to a network interface directly, this bypasses firewall rules (iptables, etc.) and will expose your app to public internet. A common use-case is to run app behind a reverse proxy (NGINX, Traefik, Caddy,...). By attaching port to local IP (`127.0.0.1`) or other non public CIDR, app will be accessible only through the proxy and not via public server IP.
-
-### Push images
+## Push images
 
 - `docker push`
 
@@ -463,13 +461,13 @@ docker run -ti -p 127.0.0.1:8080:80 nginx
 docker push ttl.sh/docker-training-demo:1h
 ```
 
-### Pull images
+## Pull images
 
 ```bash
 docker pull ttl.sh/docker-training-demo:1h
 ```
 
-### Registry
+## Image Registry (OCI Artifact Registry)
 
 Registries can be public (pull image without authentication) or private.
 
@@ -479,57 +477,6 @@ Public & free registries:
 - GitHub Container Registry (ghcr.io)
 - Quay.io
 - ttl.sh (for debugging)
-
-## Advanced topics
-
-### Docker in Docker (DinD)
-
-Run Docker in Docker:
-
-```bash
-# Start DinD container
-docker run --name docker -d --privileged docker:dind
-
-# Test it
-docker exec docker docker info
-docker exec docker docker image ls
-docker exec docker docker run hello-world
-docker exec -ti docker sh
-```
-
-This is a common case for GitLab CI runner, running Docker in Docker either with its `services` directive or via exposed socket (insecure!).
-
-### OCI
-
-OCI aka Open Container Initiative is an organization backing the image, runtime and distribution specification, to ensure a well-maintained and well-designed APIs.
-
-To work with OCI registry/images/etc., you can use the following tools
-
-- crane
-
-    [crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) is a tool for interacting with remote images and registries.
-
-    Install on Mac:
-
-    ```bash
-    brew install crane
-    ```
-
-    **Copy Image**
-
-    Copy image from one registry to another without pulling it to local machine.
-
-    `crane copy <source> <destination>`
-
-    Example:
-
-    ```bash
-    crane copy ubuntu ttl.sh/training-ubuntu
-    ```
-
-- [ORAS](https://oras.land/)
-
-    Distribute Artifacts across OCI registries with easy.
 
 ### Private registries
 
@@ -548,7 +495,24 @@ Self-hosted:
 - GitLab – open source core Git repository hosting with built-in image registry
 - and more...
 
-### Lint Dockerfile
+## Docker in Docker (DinD)
+
+Run Docker in Docker:
+
+```bash
+# Start DinD container
+docker run --name docker -d --privileged docker:dind
+
+# Test it
+docker exec docker docker info
+docker exec docker docker image ls
+docker exec docker docker run hello-world
+docker exec -ti docker sh
+```
+
+This is a common case for GitLab CI runner, running Docker in Docker either with its `services` directive or via exposed socket (insecure!).
+
+## Lint `Dockerfile`
 
 To avoid mistakes, use [Hadolint](https://github.com/hadolint/hadolint) to lint your Dockerfiles.
 
@@ -558,7 +522,7 @@ It works like every other linter, checks for common mistakes, etc.
 hadolint <path-to-dockerfile>
 ```
 
-### Docker networks
+## Docker networks
 
 - `docker network ls`
 - `docker network create <network>`
@@ -589,7 +553,7 @@ docker run -ti --net my_bridge curl bash
 
 ## Docker Compose
 
-Docker compose (or docker-compose for v1 cli).
+Docker Compose (or docker-compose for v1 cli).
 
 Docker Compose is configured with YAML config file `compose.yml` (or with `.yaml` extension, or `docker-compose.yml` for as old file name).
 
@@ -610,6 +574,8 @@ services:
 ```
 
 ### `compose.yaml` file
+
+See: [Docker Compose file reference](https://docs.docker.com/reference/compose-file/)
 
 ### Docker Compose services
 
@@ -720,7 +686,7 @@ docker compose up -d
 
 [cAdvisor](https://github.com/google/cadvisor) is a tool that analyzes resource usage and performance characteristics of running containers. Its developed by Google, but its not an official product.
 
-## Running containers in production
+## Containers in production
 
 Already mentioned Docker Compose - its fine for a single server.
 
@@ -738,6 +704,38 @@ Or you can opt in for something bigger like Kubernetes to run your applications 
 - Fly.io
 - Render
 - Knative (on top of Kubernetes)
+
+## OCI
+
+OCI aka Open Container Initiative is an organization backing the image, runtime and distribution specification, to ensure a well-maintained and well-designed APIs.
+
+To work with OCI registry/images/etc., you can use the following tools
+
+- crane
+
+    [crane](https://github.com/google/go-containerregistry/tree/main/cmd/crane) is a tool for interacting with remote images and registries.
+
+    Install on Mac:
+
+    ```bash
+    brew install crane
+    ```
+
+    **Copy Image**
+
+    Copy image from one registry to another without pulling it to local machine.
+
+    `crane copy <source> <destination>`
+
+    Example:
+
+    ```bash
+    crane copy ubuntu ttl.sh/training-ubuntu
+    ```
+
+- [ORAS](https://oras.land/)
+
+    Distribute Artifacts across OCI registries with easy.
 
 ## Best practices
 
