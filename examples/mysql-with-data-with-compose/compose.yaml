@@ -1,0 +1,5 @@
+services:
+  database:
+    build: "."
+    environment:
+      - MYSQL_ROOT_PASSWORD=root

@@ -1,7 +1,37 @@
 services:
   app:
-    build: .
+    build: "."
     ports:
-      - "8000:5000"
+      - "127.0.0.1:8000:5000"
+
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+    networks:
+      - backend
+
+    depends_on:
+      - redis
+
   redis:
     image: "redis:alpine"
+    networks:
+      - backend
+
+  mysql:
+    image: mysql:8
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
