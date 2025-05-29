@@ -172,7 +172,7 @@ Common parameters:
 - `-e <variable>=<value>` - set ENV variable
 - `--env-file=<env_file>` - load all variables defined in ENV file
 
-> [!INFO]
+> [!NOTE]
 >
 > All parameters must always go before `<image>`, otherwise the arguments will be passed to the container process as arguments.
 >
